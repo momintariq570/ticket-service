@@ -1,6 +1,8 @@
-package com.example.ticketservice;
+package com.example.ticketservice.dtos;
 
 import java.util.List;
+
+import com.example.ticketservice.models.Seat;
 
 /*
  * Abstraction which wraps the Seat and Customer models

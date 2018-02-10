@@ -1,19 +1,22 @@
 package com.example.ticketservice;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import com.example.ticketservice.dtos.SeatHold;
+import com.example.ticketservice.models.Seat;
+import com.example.ticketservice.services.TicketService;
+import com.example.ticketservice.util.Constants;
 
 @SpringBootApplication
 public class Application /*implements CommandLineRunner*/ {

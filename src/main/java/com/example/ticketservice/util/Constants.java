@@ -1,4 +1,4 @@
-package com.example.ticketservice;
+package com.example.ticketservice.util;
 
 public class Constants {
 

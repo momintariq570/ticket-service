@@ -1,4 +1,6 @@
-package com.example.ticketservice;
+package com.example.ticketservice.services;
+
+import com.example.ticketservice.dtos.SeatHold;
 
 public interface ITicketService {
 

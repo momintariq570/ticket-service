@@ -1,13 +1,17 @@
-package com.example.ticketservice;
+package com.example.ticketservice.services;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import com.example.ticketservice.util.Constants;
+import com.example.ticketservice.dtos.SeatHold;
+import com.example.ticketservice.models.Customer;
+import com.example.ticketservice.models.Seat;
+import com.example.ticketservice.repositories.CustomerRepository;
+import com.example.ticketservice.repositories.SeatRepository;
 
 @Component
 public class TicketService implements ITicketService {

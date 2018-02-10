@@ -1,4 +1,4 @@
-package com.example.ticketservice;
+package com.example.ticketservice.models;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
