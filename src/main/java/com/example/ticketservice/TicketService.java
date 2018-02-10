@@ -15,7 +15,10 @@ public class TicketService implements ITicketService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	JdbcTemplate jdbcTemplate;
+	CustomerRepository customerRepository;
+	
+	@Autowired
+	SeatRepository seatRepository;
 
 	/*
 	 * Get the number of seat(s) available
@@ -23,8 +26,7 @@ public class TicketService implements ITicketService {
 	 * @see com.example.ticketservice.ITicketService#numSeatsAvailable()
 	 */
 	public int numSeatsAvailable() {
-		List<Seat> seats = jdbcTemplate.query(Sql.GET_ALL_SEATS_BY_STATUS, new Object[] { Constants.SEAT_AVAILABLE },
-				new SeatRowMapper());
+		List<Seat> seats = seatRepository.getAllSeatsByStatus(Constants.SEAT_AVAILABLE);
 		logger.info("Retrieved all {} seat(s)", Constants.SEAT_AVAILABLE);
 		return seats.size();
 	}
@@ -35,8 +37,7 @@ public class TicketService implements ITicketService {
 	 * @return list of seat(s) by status
 	 */
 	public List<Seat> getSeatsByStatus(String status) {
-		List<Seat> seats = jdbcTemplate.query(Sql.GET_ALL_SEATS_BY_STATUS, new Object[] { status },
-				new SeatRowMapper());
+		List<Seat> seats = seatRepository.getAllSeatsByStatus(status);
 		logger.info("Retrieved all {} {} seat(s)", seats.size(), status);
 		return seats;
 	}
@@ -138,9 +139,8 @@ public class TicketService implements ITicketService {
 	 * @param id
 	 * @return Seat object
 	 */
-	public Seat getSeatById(long id) {
-		Seat seat = jdbcTemplate.queryForObject(Sql.GET_SEAT_BY_ID, new Object[] { id },
-				new BeanPropertyRowMapper<Seat>(Seat.class));
+	public Seat getSeatById(int id) {
+		Seat seat = seatRepository.getSeatById(id);
 		logger.info("Retrieved seat {} from the seat table", id);
 		return seat;
 	}
@@ -150,7 +150,7 @@ public class TicketService implements ITicketService {
 	 * @return list of seat(s)
 	 */
 	public List<Seat> getAllSeats() {
-		List<Seat> seats = jdbcTemplate.query(Sql.GET_ALL_SEATS, new SeatRowMapper());
+		List<Seat> seats = seatRepository.getAllSeats();
 		logger.info("Retrieved all {} seats from the seat table", seats.size());
 		return seats;
 	}
@@ -161,8 +161,7 @@ public class TicketService implements ITicketService {
 	 * @return list of seat(s)
 	 */
 	public List<Seat> getAllSeatsByEmailAddress(String customerEmail) {
-		return jdbcTemplate.query(Sql.GET_ALL_SEATS_BY_EMAIL_ADDRESS, new Object[] { customerEmail },
-				new SeatRowMapper());
+		return seatRepository.getAllSeatsByCustomerEmail(customerEmail);
 	}
 
 	/*
@@ -172,8 +171,7 @@ public class TicketService implements ITicketService {
 	 * @return list of seat(s)
 	 */
 	public List<Seat> getAllSeatsByEmailByStatus(String customerEmail, String status) {
-		return jdbcTemplate.query(Sql.GET_ALL_SEATS_BY_EMAIL_ADDRESS_BY_STATUS, new Object[] { customerEmail, status },
-				new SeatRowMapper());
+		return seatRepository.getAllSeatsByCustomerEmailByStatus(customerEmail, status);
 	}
 
 	/*
@@ -184,17 +182,16 @@ public class TicketService implements ITicketService {
 	public boolean insertNewCustomer(String customerEmail) {
 		
 		// Check if the customer is already in the database
-		List<Customer> customer = jdbcTemplate.query(Sql.GET_CUSTOMER_BY_EMAIL_ADDRESS, new Object[] { customerEmail },
-				new CustomerRowMapper());
+		Customer customer = customerRepository.getCustomerByEmail(customerEmail);
 
 		// Return false if the customer is already in the database
-		if (customer.size() > 0) {
+		if (customer != null) {
 			logger.info("Customer already exists in the system");
 			return false;
 		}
 
 		// Insert the customer in the database
-		int rowsAffected = jdbcTemplate.update(Sql.ADD_NEW_CUSTOMER, new Object[] { customerEmail });
+		int rowsAffected = customerRepository.addNewCustomer(customerEmail);
 
 		if (rowsAffected > 0) {
 			logger.info("Inserted {} in the customer table", customerEmail);
@@ -210,7 +207,7 @@ public class TicketService implements ITicketService {
 	 * @param customerEmail
 	 */
 	public void deleteCustomer(String customerEmail) {
-		int rowsAffected = jdbcTemplate.update(Sql.DELETE_CUSTOMER, new Object[] { customerEmail });
+		int rowsAffected = customerRepository.deleteCustomerByEmail(customerEmail);
 		if (rowsAffected > 0) {
 			logger.info("Deleted {} from the customer table", customerEmail);
 		} else {
@@ -241,36 +238,12 @@ public class TicketService implements ITicketService {
 	 * @return number of rows affected
 	 */
 	private int updateSeatStatus(List<Seat> seats, String customerEmail, String status) {
-		String sql = generateUpdateSql(seats.size());
-		Object[] objArr = new Object[seats.size() + 2];
-		objArr[0] = status;
-		objArr[1] = status.equals(Constants.SEAT_AVAILABLE) ? null : customerEmail;
-		for (int i = 2; i < objArr.length; i++) {
-			objArr[i] = seats.get(i - 2).getSeatId();
-		}
-		int rowsAffectedSeats = jdbcTemplate.update(sql, objArr);
+		ArrayList<Integer> seatIds = new ArrayList<Integer>();
+		seats.forEach(seat -> {
+			seatIds.add(seat.getSeatId());
+		});
+		customerEmail = status.equals(Constants.SEAT_AVAILABLE) ? null : customerEmail;
+		int rowsAffectedSeats = seatRepository.updateSeats(status, customerEmail, seatIds);
 		return rowsAffectedSeats;
-	}
-
-	/*
-	 * Generates the update sql
-	 * @param numSeats
-	 * @return generated update sql
-	 */
-	private String generateUpdateSql(int numSeats) {
-		return String.format(Sql.UPDATE_SEATS, generatePlaceholders(numSeats));
-	}
-
-	/*
-	 * Generates placeholders
-	 * @param numPlaceholders
-	 * @return comma separated placeholders
-	 */
-	private String generatePlaceholders(int numPlaceholders) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < numPlaceholders; i++) {
-			sb.append("?").append(i == (numPlaceholders - 1) ? "" : ", ");
-		}
-		return sb.toString();
 	}
 }

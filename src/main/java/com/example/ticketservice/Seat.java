@@ -1,11 +1,44 @@
 package com.example.ticketservice;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "seat")
+@NamedQueries(
+	{
+		@NamedQuery(name = "Seat.GetAllSeats", query = "FROM Seat e ORDER BY e.seatRow, e.seatNumber"),
+		@NamedQuery(name = "Seat.GetSeatById", query = "FROM Seat e WHERE e.seatId = :seatId"),
+		@NamedQuery(name = "Seat.GetAllSeatsByCustomerEmail", query = "FROM Seat e WHERE e.customerEmail = :customerEmail"),
+		@NamedQuery(name = "Seat.GetAllSeatsByCustomerEmailByStatus", query = "FROM Seat e WHERE e.customerEmail = :customerEmail AND e.seatStatus = :seatStatus"),
+		@NamedQuery(name = "Seat.GetAllSeatsByStatus", query = "FROM Seat e WHERE e.seatStatus = :seatStatus"),
+		@NamedQuery(name = "Seat.UpdateSeats", query = "UPDATE Seat e SET e.seatStatus = :seatStatus, e.customerEmail = :customerEmail WHERE e.seatId in :seatIds")
+	}
+)
+@NamedNativeQuery(name = "Seat.InsertSeat", query = "insert into seat (seat_number, seat_row) values (?, ?)")
 public class Seat {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int seatId;
+	
+	@Column(name = "seat_number", nullable = false)
 	private int seatNumber;
+	
+	@Column(name = "seat_row", nullable = false)
 	private int seatRow;
+	
+	@Column(name = "seat_status", columnDefinition = "varchar default 'available'")
 	private String seatStatus;
+	
+	@Column(name = "customer_email")
 	private String customerEmail;
 
 	public Seat() {
