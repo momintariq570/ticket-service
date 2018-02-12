@@ -19,7 +19,9 @@ import javax.persistence.Table;
 		@NamedQuery(name = "Seat.GetAllSeatsByCustomerEmail", query = "FROM Seat e WHERE e.customerEmail = :customerEmail"),
 		@NamedQuery(name = "Seat.GetAllSeatsByCustomerEmailByStatus", query = "FROM Seat e WHERE e.customerEmail = :customerEmail AND e.seatStatus = :seatStatus"),
 		@NamedQuery(name = "Seat.GetAllSeatsByStatus", query = "FROM Seat e WHERE e.seatStatus = :seatStatus"),
-		@NamedQuery(name = "Seat.UpdateSeats", query = "UPDATE Seat e SET e.seatStatus = :seatStatus, e.customerEmail = :customerEmail WHERE e.seatId in :seatIds")
+		@NamedQuery(name = "Seat.UpdateSeatsByCustomerEmail", query = "UPDATE Seat e SET e.seatStatus = :seatStatus, e.customerEmail = :customerEmail WHERE e.seatId in :seatIds"),
+		@NamedQuery(name = "Seat.GetSeatsByNumberAndRow", query = "FROM Seat e WHERE e.seatNumber = :seatNumber AND e.seatRow = :seatRow"),
+		@NamedQuery(name = "Seat.UpdateSeats", query = "UPDATE Seat e SET e.seatStatus = :seatStatus")
 	}
 )
 @NamedNativeQuery(name = "Seat.InsertSeat", query = "insert into seat (seat_number, seat_row) values (?, ?)")
@@ -45,6 +47,18 @@ public class Seat {
 		super();
 	}
 
+	public Seat(int seatNumber, int seatRow) {
+		this.seatNumber = seatNumber;
+		this.seatRow = seatRow;
+	}
+	
+	public Seat(int seatNumber, int seatRow, String seatStatus, String customerEmail) {
+		this.seatNumber = seatNumber;
+		this.seatRow = seatRow;
+		this.seatStatus = seatStatus;
+		this.customerEmail = customerEmail;
+	}
+	
 	public Seat(int seatId, int seatNumber, int seatRow, String seatStatus, String customerEmail) {
 		this.seatId = seatId;
 		this.seatNumber = seatNumber;

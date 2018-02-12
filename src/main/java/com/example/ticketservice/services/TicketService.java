@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import com.example.ticketservice.util.Constants;
 import com.example.ticketservice.dtos.SeatHold;
 import com.example.ticketservice.models.Customer;
@@ -13,7 +15,7 @@ import com.example.ticketservice.models.Seat;
 import com.example.ticketservice.repositories.CustomerRepository;
 import com.example.ticketservice.repositories.SeatRepository;
 
-@Component
+@Service
 public class TicketService implements ITicketService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -247,7 +249,7 @@ public class TicketService implements ITicketService {
 			seatIds.add(seat.getSeatId());
 		});
 		customerEmail = status.equals(Constants.SEAT_AVAILABLE) ? null : customerEmail;
-		int rowsAffectedSeats = seatRepository.updateSeats(status, customerEmail, seatIds);
+		int rowsAffectedSeats = seatRepository.updateSeatsByCustomerEmail(status, customerEmail, seatIds);
 		return rowsAffectedSeats;
 	}
 }
